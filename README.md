@@ -12,7 +12,7 @@ UnazuSan - IRC reaction bot framework
         join_channels => [qw/test/],
     );
     $unazu_san->on_message(
-        qr/^\s*unazu_san:/ => sub {
+        qr/^unazu_san:/ => sub {
             my $receive = shift;
             $receive->reply('うんうん');
         },
