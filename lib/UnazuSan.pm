@@ -63,7 +63,7 @@ sub new {
             cb => sub {
                 my $receive = shift;
                 $receive->{message} = decode_utf8 $receive->{message};
-                $self->_invoke($receive);
+                $self->_respond($receive);
             }
         }
     );
@@ -74,30 +74,57 @@ sub new {
 sub on_message {
     my ($self, @jobs) = @_;
     while (my ($reg, $sub) = splice @jobs, 0, 2) {
-        push @{ $self->_jobs }, [$reg, $sub];
+        push @{ $self->_reactions }, [$reg, $sub];
     }
+}
+
+sub on_command {
+    my ($self, @jobs) = @_;
+    while (my ($command, $sub) = splice @jobs, 0, 2) {
+        my $reg = _build_command_reg($self->{nickname}, $command);
+        push @{ $self->_reactions }, [$reg, $sub, $command];
+    }
+}
+
+sub _build_command_reg {
+    my ($nick, $command) = @_;
+
+    my $prefix = '^\s*'.quotemeta($nick). '[:\s]\s*' . quotemeta($command);
 }
 
 sub run {
     AnySan->run;
 }
 
-sub invoke_all { shift->{invoke_all} }
+sub respond_all { shift->{respond_all} }
 
-sub _jobs {
-    shift->{_jobs} ||= [];
+sub _reactions {
+    shift->{_reactions} ||= [];
 }
 
-sub _invoke {
+sub _respond {
     my ($self, $receive) = @_;
 
-    my $message = $receive->message; say $message;
-    for my $job (@{ $self->_jobs }) {
-        if (my @matches = $message =~ $job->[0]) {
-            $job->[1]->($receive, @matches);
-            return unless $self->invoke_all;
+    my $message = $receive->message;
+    $message =~ s/^\s+//; $message =~ s/\s+$//;
+    for my $reaction (@{ $self->_reactions }) {
+        my ($reg, $sub, $command) = @$reaction;
+
+        if (my @matches = $message =~ $reg) {
+            if (defined $command) {
+                @matches = _build_command_args($reg, $message);
+            }
+            $sub->($receive, @matches);
+            return unless $self->respond_all;
         }
     }
+}
+
+sub _build_command_args {
+    my ($reg, $mes) = @_;
+    $mes =~ s/$reg//;
+    $mes =~ s/^\s+//; $mes =~ s/\s+$//;
+    split /\s+/, $mes;
 }
 
 package # hide from pause
@@ -129,7 +156,7 @@ UnazuSan - IRC reaction bot framework
         join_channels => [qw/test/],
     );
     $unazu_san->on_message(
-        qr/^\s*unazu_san:/ => sub {
+        qr/^unazu_san:/ => sub {
             my $receive = shift;
             $receive->reply('うんうん');
         },

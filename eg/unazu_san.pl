@@ -8,9 +8,10 @@ use UnazuSan;
 
 my $unazu_san = UnazuSan->new(
     host       => 'example.com',
-    password   => 'xxxxxxxx',
+    password   => 'xxxxxxxxxxx',
     enable_ssl => 1,
-    join_channels => [qw/test/],
+    join_channels => [qw/arcade/],
+    respond_all   => 1,
 );
 
 $unazu_san->on_message(
@@ -23,6 +24,13 @@ $unazu_san->on_message(
         say $match;
         say $receive->message;
     },
+);
+
+$unazu_san->on_command(
+    help => sub {
+        my ($receive, @args) = @_;
+        $receive->reply('help '. ($args[0] || ''));
+    }
 );
 
 $unazu_san->run;
