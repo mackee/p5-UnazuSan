@@ -1,5 +1,5 @@
 {
-   "abstract" : "It's new $module",
+   "abstract" : "IRC reaction bot framework",
    "author" : [
       "Masayuki Matsuki <y.songmu@gmail.com>"
    ],
@@ -42,7 +42,8 @@
       },
       "runtime" : {
          "requires" : {
-            "perl" : "5.008005"
+            "AnySan" : "0.10",
+            "perl" : "5.010"
          }
       },
       "test" : {
