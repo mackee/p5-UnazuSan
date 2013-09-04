@@ -89,7 +89,7 @@ sub on_command {
 sub _build_command_reg {
     my ($nick, $command) = @_;
 
-    my $prefix = '^\s*'.quotemeta($nick). '[:\s]\s*' . quotemeta($command);
+    my $prefix = '^\s*'.quotemeta($nick). '_*[:\s]\s*' . quotemeta($command);
 }
 
 sub run {
@@ -165,6 +165,12 @@ UnazuSan - IRC reaction bot framework
             say $match;
             say $receive->message;
         },
+    );
+    $unazu_san->on_command(
+        help => sub {
+            my ($receive, @args) = @_;
+            $receive->reply('help '. ($args[0] || ''));
+        }
     );
     $unazu_san->run;
 

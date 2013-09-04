@@ -10,7 +10,7 @@ my $unazu_san = UnazuSan->new(
     host       => 'example.com',
     password   => 'xxxxxxxxxxx',
     enable_ssl => 1,
-    join_channels => [qw/arcade/],
+    join_channels => [qw/test/],
     respond_all   => 1,
 );
 
