@@ -53,5 +53,16 @@
       }
    },
    "release_status" : "unstable",
+   "resources" : {
+      "bugtracker" : {
+         "web" : "https://github.com/Songmu/p5-UnazuSan/issues"
+      },
+      "homepage" : "https://github.com/Songmu/p5-UnazuSan",
+      "repository" : {
+         "type" : "git",
+         "url" : "git://github.com/Songmu/p5-UnazuSan.git",
+         "web" : "https://github.com/Songmu/p5-UnazuSan"
+      }
+   },
    "version" : "0.01"
 }
