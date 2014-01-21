@@ -22,6 +22,12 @@ UnazuSan - IRC reaction bot framework
             say $receive->message;
         },
     );
+    $unazu_san->on_command(
+        help => sub {
+            my ($receive, @args) = @_;
+            $receive->reply('help '. ($args[0] || ''));
+        }
+    );
     $unazu_san->run;
 
 # DESCRIPTION
