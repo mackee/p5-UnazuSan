@@ -18,6 +18,7 @@ sub new {
     $self->{port}               ||= 6667;
     $self->{post_interval}      //= 2;
     $self->{reconnect_interval} //= 3;
+    $self->{recive_commands}    //= ['PRIVMSG'];
 
     my ($irc, $is_connect, $connector);
     $connector = sub {
@@ -30,6 +31,7 @@ sub new {
             user       => $self->{user},
             interval   => $self->{post_interval},
             enable_ssl => $self->{enable_ssl},
+            recive_commands => $self->{recive_commands},
             on_connect => sub {
                 my ($con, $err) = @_;
                 if (defined $err) {
