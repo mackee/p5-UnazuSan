@@ -20,9 +20,9 @@ sub new {
     $self->{reconnect_interval} //= 3;
     $self->{receive_commands}   //= ['PRIVMSG'];
 
-    my ($irc, $is_connect, $connector);
-    $connector = sub {
-        irc
+    my ($provider, $is_connect, $connector);
+    $connector = $self->{connector} //= sub {
+        my $provider = irc
             $self->{host},
             port       => $self->{port},
             key        => $self->{keyword},
@@ -47,28 +47,30 @@ sub new {
             on_disconnect => sub {
                 warn 'disconnect';
                 # XXX: bad hack...
-                undef $irc->{client};
-                undef $irc->{SEND_TIMER};
-                undef $irc;
+                undef $provider->{client};
+                undef $provider->{SEND_TIMER};
+                undef $provider;
                 $is_connect = 0;
-                $irc = $connector->();
+                $provider = $connector->();
             },
             channels => {
                 map { my $chan = $_; $chan = '#'.$chan unless $chan =~ /^#/;  ;($chan => +{}) } @{ $self->{join_channels} || [] },
             };
-    };
-    $irc = $connector->();
-    $self->{irc} = $irc;
 
-    AnySan->register_listener(
-        echo => {
-            cb => sub {
-                my $receive = shift;
-                $receive->{message} = decode_utf8 $receive->{message};
-                $self->_respond($receive);
+        AnySan->register_listener(
+            echo => {
+                cb => sub {
+                    my $receive = shift;
+                    $receive->{message} = decode_utf8 $receive->{message};
+                    $self->_respond($receive);
+                }
             }
-        }
-    );
+        );
+        return $provider;
+    };
+
+    $provider = $connector->();
+    $self->{provider} = $provider;
 
     $self;
 }
